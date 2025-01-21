@@ -10,14 +10,13 @@ using li4.Models;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 
-
 namespace li4.Controllers
 {
     public class OrdersController : Controller
     {
         private readonly ApplicationDbContext _context;
-
         private readonly ILogger<OrdersController> _logger;
+
 
         public OrdersController(ApplicationDbContext context, ILogger<OrdersController> logger)
         {
@@ -40,6 +39,7 @@ namespace li4.Controllers
             // Retorna apenas as Orders associadas ao usuário logado
             return View(await applicationDbContext.ToListAsync());
         }
+
 
         // GET: Orders/Details/5
         [Authorize]
@@ -91,7 +91,9 @@ namespace li4.Controllers
                 await _context.SaveChangesAsync();
 
                 return RedirectToAction(nameof(Index));
-            } else {
+            }
+            else
+            {
                 foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
                 {
                     _logger.LogInformation($"Validation error: {error.ErrorMessage}");
@@ -115,10 +117,13 @@ namespace li4.Controllers
             {
                 return NotFound();
             }
+            ViewData["AccountsId"] = new SelectList(_context.Users, "Id", "Id", orders.AccountsId);
             return View(orders);
         }
 
         // POST: Orders/Edit/5
+        // To protect from overposting attacks, enable the specific properties you want to bind to.
+        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -170,7 +175,9 @@ namespace li4.Controllers
                 }
 
                 return RedirectToAction(nameof(Index));
-            } else {
+            }
+            else
+            {
                 foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
                 {
                     _logger.LogError($"Validation error: {error.ErrorMessage}");
@@ -201,9 +208,9 @@ namespace li4.Controllers
         }
 
         // POST: Orders/Delete/5
-        [Authorize]
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var orders = await _context.Orders.FindAsync(id);

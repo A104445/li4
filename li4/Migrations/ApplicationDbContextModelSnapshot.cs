@@ -8,7 +8,7 @@ using li4.Data;
 
 #nullable disable
 
-namespace li4.Data.Migrations
+namespace li4.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
     partial class ApplicationDbContextModelSnapshot : ModelSnapshot
@@ -224,6 +224,44 @@ namespace li4.Data.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("li4.Models.Components", b =>
+                {
+                    b.Property<int>("ComponentsId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ComponentsId"));
+
+                    b.Property<string>("Nome")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Quantidade")
+                        .HasColumnType("int");
+
+                    b.HasKey("ComponentsId");
+
+                    b.ToTable("Components");
+                });
+
+            modelBuilder.Entity("li4.Models.OrderProduct", b =>
+                {
+                    b.Property<int>("ProductsId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("OrdersId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Quantidade")
+                        .HasColumnType("int");
+
+                    b.HasKey("ProductsId", "OrdersId");
+
+                    b.HasIndex("OrdersId");
+
+                    b.ToTable("OrderProducts");
+                });
+
             modelBuilder.Entity("li4.Models.Orders", b =>
                 {
                     b.Property<int>("OrdersId")
@@ -250,6 +288,44 @@ namespace li4.Data.Migrations
                     b.HasIndex("AccountsId");
 
                     b.ToTable("Orders");
+                });
+
+            modelBuilder.Entity("li4.Models.ProductComponent", b =>
+                {
+                    b.Property<int>("ProductsId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ComponentsId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Quantidade")
+                        .HasColumnType("int");
+
+                    b.HasKey("ProductsId", "ComponentsId");
+
+                    b.HasIndex("ComponentsId");
+
+                    b.ToTable("ProductComponents");
+                });
+
+            modelBuilder.Entity("li4.Models.Products", b =>
+                {
+                    b.Property<int>("ProductsId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ProductsId"));
+
+                    b.Property<string>("Nome")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<float>("Preco")
+                        .HasColumnType("real");
+
+                    b.HasKey("ProductsId");
+
+                    b.ToTable("Products");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -303,6 +379,25 @@ namespace li4.Data.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("li4.Models.OrderProduct", b =>
+                {
+                    b.HasOne("li4.Models.Orders", "Orders")
+                        .WithMany("EncomendaProduto")
+                        .HasForeignKey("OrdersId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("li4.Models.Products", "Produto")
+                        .WithMany("EncomendaProduto")
+                        .HasForeignKey("ProductsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Orders");
+
+                    b.Navigation("Produto");
+                });
+
             modelBuilder.Entity("li4.Models.Orders", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "User")
@@ -312,6 +407,42 @@ namespace li4.Data.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("li4.Models.ProductComponent", b =>
+                {
+                    b.HasOne("li4.Models.Components", "Componente")
+                        .WithMany("ProdutoComponentes")
+                        .HasForeignKey("ComponentsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("li4.Models.Products", "Produto")
+                        .WithMany("ProdutoComponentes")
+                        .HasForeignKey("ProductsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Componente");
+
+                    b.Navigation("Produto");
+                });
+
+            modelBuilder.Entity("li4.Models.Components", b =>
+                {
+                    b.Navigation("ProdutoComponentes");
+                });
+
+            modelBuilder.Entity("li4.Models.Orders", b =>
+                {
+                    b.Navigation("EncomendaProduto");
+                });
+
+            modelBuilder.Entity("li4.Models.Products", b =>
+                {
+                    b.Navigation("EncomendaProduto");
+
+                    b.Navigation("ProdutoComponentes");
                 });
 #pragma warning restore 612, 618
         }

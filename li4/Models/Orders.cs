@@ -18,6 +18,8 @@ namespace li4.Models
         [ForeignKey("AccountsId")]
         public IdentityUser? User { get; set; } // '?' Torna opcional
 
+        public ICollection<OrderProduct>? EncomendaProduto { get; set; }
+
         public Orders()
         {
         }
