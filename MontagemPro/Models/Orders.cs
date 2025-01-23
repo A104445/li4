@@ -9,9 +9,9 @@ namespace MontagemPro.Models
 
         public DateTime Data { get; set; }
 
-        public int Total { get; set; }
-
         public int Prioridade { get; set; }
+
+        public double PreçoTotal { get; set; }
 
         public string AccountsId { get; set; }
 

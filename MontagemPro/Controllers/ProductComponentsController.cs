@@ -7,16 +7,15 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using MontagemPro.Data;
 using MontagemPro.Models;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace MontagemPro.Controllers
 {
     public class ProductComponentsController : Controller
     {
         private readonly ApplicationDbContext _context;
-        private readonly ILogger<OrdersController> _logger;
+        private readonly ILogger<ProductComponentsController> _logger;
 
-        public ProductComponentsController(ApplicationDbContext context, ILogger<OrdersController> logger)
+        public ProductComponentsController(ApplicationDbContext context, ILogger<ProductComponentsController> logger)
         {
             _context = context;
             _logger = logger;

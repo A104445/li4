@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using MontagemPro.Data;
 using MontagemPro.Models;
-using Microsoft.AspNetCore.Authorization;
-using System.Security.Claims;
 
 namespace MontagemPro.Controllers
 {
@@ -30,6 +30,11 @@ namespace MontagemPro.Controllers
         {
             // Obtém o ID do usuário logado
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == "1194edf7-7dff-4d44-92e7-c762cfbd2908")// admin
+            {
+                // Se o usuário for o administrador, retorna todas as Orders
+                return View(await _context.Orders.Include(o => o.User).ToListAsync());
+            }
 
             // Filtra as Orders pelo UserId
             var applicationDbContext = _context.Orders
@@ -39,7 +44,6 @@ namespace MontagemPro.Controllers
             // Retorna apenas as Orders associadas ao usuário logado
             return View(await applicationDbContext.ToListAsync());
         }
-
 
         // GET: Orders/Details/5
         [Authorize]
@@ -74,7 +78,7 @@ namespace MontagemPro.Controllers
         [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("OrdersId,Data,Total,Prioridade")] Orders orders)
+        public async Task<IActionResult> Create([Bind("OrdersId,Data,Prioridade,PreçoTotal")] Orders orders)
         {
             // get user id
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -84,22 +88,12 @@ namespace MontagemPro.Controllers
             // Limpar os erros de validação para AccountsId e validar novamente
             ModelState.Remove(nameof(orders.AccountsId));
 
-
             if (ModelState.IsValid)
             {
                 _context.Add(orders);
                 await _context.SaveChangesAsync();
-
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("Create", "OrderProducts1", new { ordersId = orders.OrdersId });
             }
-            else
-            {
-                foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
-                {
-                    _logger.LogInformation($"Validation error: {error.ErrorMessage}");
-                }
-            }
-
             return View(orders);
         }
 
@@ -127,15 +121,13 @@ namespace MontagemPro.Controllers
         [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("OrdersId,Data,Total,Prioridade")] Orders orders)
+        public async Task<IActionResult> Edit(int id, [Bind("OrdersId,Data,Prioridade,PreçoTotal")] Orders orders)
         {
             if (id != orders.OrdersId)
             {
                 return NotFound();
             }
-
             ModelState.Remove(nameof(orders.AccountsId));
-
             if (ModelState.IsValid)
             {
                 try
@@ -148,12 +140,12 @@ namespace MontagemPro.Controllers
                         return NotFound();
                     }
 
-                    _logger.LogInformation($"Received Order: ID={orders.OrdersId}, Data={orders.Data}, Total={orders.Total}, Prioridade={orders.Prioridade}");
+                    _logger.LogInformation($"Received Order: ID={orders.OrdersId}, Data={orders.Data}, Prioridade={orders.Prioridade}");
 
 
                     // Update fields explicitly
                     existingOrder.Data = orders.Data;
-                    existingOrder.Total = orders.Total;
+                    existingOrder.PreçoTotal = orders.PreçoTotal;
                     existingOrder.Prioridade = orders.Prioridade;
 
                     // Save changes
@@ -187,6 +179,9 @@ namespace MontagemPro.Controllers
             return View(orders);
         }
 
+
+
+
         // GET: Orders/Delete/5
         [Authorize]
         public async Task<IActionResult> Delete(int? id)
@@ -208,9 +203,9 @@ namespace MontagemPro.Controllers
         }
 
         // POST: Orders/Delete/5
+        [Authorize]
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        [Authorize]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var orders = await _context.Orders.FindAsync(id);

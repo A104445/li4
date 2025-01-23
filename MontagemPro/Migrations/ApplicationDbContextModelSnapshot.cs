@@ -285,10 +285,10 @@ namespace MontagemPro.Migrations
                     b.Property<DateTime>("Data")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("Prioridade")
-                        .HasColumnType("int");
+                    b.Property<double>("PreçoTotal")
+                        .HasColumnType("float");
 
-                    b.Property<int>("Total")
+                    b.Property<int>("Prioridade")
                         .HasColumnType("int");
 
                     b.HasKey("OrdersId");
