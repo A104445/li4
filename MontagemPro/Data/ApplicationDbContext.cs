@@ -23,11 +23,8 @@ namespace MontagemPro.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            // Configurando a chave primária composta
-            modelBuilder.Entity<OrderProduct>()
-                .HasKey(op => new { op.ProductsId, op.OrdersId });
 
-            // Configurando os relacionamentos
+            // Configurar os relacionamentos
             modelBuilder.Entity<OrderProduct>()
                 .HasOne(op => op.Produto)
                 .WithMany(p => p.EncomendaProduto)
@@ -38,11 +35,7 @@ namespace MontagemPro.Data
                 .WithMany(o => o.EncomendaProduto)
                 .HasForeignKey(op => op.OrdersId);
 
-            // Configurando a chave primária composta
-            modelBuilder.Entity<ProductComponent>()
-                .HasKey(pc => new { pc.ProductsId, pc.ComponentsId });
-
-            // Configurando os relacionamentos
+            // Configurar os relacionamentos
             modelBuilder.Entity<ProductComponent>()
                 .HasOne(pc => pc.Produto)
                 .WithMany(p => p.ProdutoComponentes)

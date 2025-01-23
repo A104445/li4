@@ -26,6 +26,19 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Orders" asp-action="Index">Orders</a>
                         </li>
+                        <!-- Links específicos para Admin -->
+                        @if (User.IsInRole("Admin"))
+                        {
+							<li class="nav-item">
+								<a class="nav-link text-dark" asp-area="" asp-controller="Products" asp-action="Index">Products</a>
+							</li>
+							<li class="nav-item">
+								<a class="nav-link text-dark" asp-area="" asp-controller="Components" asp-action="Index">Components</a>
+							</li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="ProductComponents" asp-action="Index">ProductComponents</a>
+                            </li>
+                        }
                     </ul>
                     <partial name="_LoginPartial" />
                 </div>

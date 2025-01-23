@@ -4,14 +4,15 @@ namespace MontagemPro.Models
 {
     public class OrderProduct
     {
+        public int OrderProductId { get; set; }
 
         [ForeignKey("ProductsId")]
         public int ProductsId { get; set; }
-        public Products Produto { get; set; }
+        public Products? Produto { get; set; }
 
         [ForeignKey("OrdersId")]
         public int OrdersId { get; set; }
-        public Orders Orders { get; set; }
+        public Orders? Orders { get; set; }
 
         // Propriedade adicional para armazenar a quantidade
         public int Quantidade { get; set; }

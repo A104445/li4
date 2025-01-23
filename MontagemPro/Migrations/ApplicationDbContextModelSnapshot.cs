@@ -246,18 +246,26 @@ namespace MontagemPro.Migrations
 
             modelBuilder.Entity("MontagemPro.Models.OrderProduct", b =>
                 {
-                    b.Property<int>("ProductsId")
+                    b.Property<int>("OrderProductId")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("OrderProductId"));
+
                     b.Property<int>("OrdersId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ProductsId")
                         .HasColumnType("int");
 
                     b.Property<int>("Quantidade")
                         .HasColumnType("int");
 
-                    b.HasKey("ProductsId", "OrdersId");
+                    b.HasKey("OrderProductId");
 
                     b.HasIndex("OrdersId");
+
+                    b.HasIndex("ProductsId");
 
                     b.ToTable("OrderProducts");
                 });
@@ -292,18 +300,26 @@ namespace MontagemPro.Migrations
 
             modelBuilder.Entity("MontagemPro.Models.ProductComponent", b =>
                 {
-                    b.Property<int>("ProductsId")
+                    b.Property<int>("ProductComponentId")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ProductComponentId"));
+
                     b.Property<int>("ComponentsId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ProductsId")
                         .HasColumnType("int");
 
                     b.Property<int>("Quantidade")
                         .HasColumnType("int");
 
-                    b.HasKey("ProductsId", "ComponentsId");
+                    b.HasKey("ProductComponentId");
 
                     b.HasIndex("ComponentsId");
+
+                    b.HasIndex("ProductsId");
 
                     b.ToTable("ProductComponents");
                 });
