@@ -12,6 +12,7 @@ namespace MontagemPro.Models
         public int Prioridade { get; set; }
 
         public double PreçoTotal { get; set; }
+        public bool Confirmada { get; set; }
 
         public string AccountsId { get; set; }
 

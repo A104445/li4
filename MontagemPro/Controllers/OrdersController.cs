@@ -17,12 +17,12 @@ namespace MontagemPro.Controllers
         private readonly ApplicationDbContext _context;
         private readonly ILogger<OrdersController> _logger;
 
-
         public OrdersController(ApplicationDbContext context, ILogger<OrdersController> logger)
         {
             _context = context;
             _logger = logger;
         }
+
 
         // GET: Orders
         [Authorize]
@@ -44,6 +44,7 @@ namespace MontagemPro.Controllers
             // Retorna apenas as Orders associadas ao usuário logado
             return View(await applicationDbContext.ToListAsync());
         }
+
 
         // GET: Orders/Details/5
         [Authorize]
@@ -75,10 +76,9 @@ namespace MontagemPro.Controllers
         // POST: Orders/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("OrdersId,Data,Prioridade,PreçoTotal")] Orders orders)
+        public async Task<IActionResult> Create([Bind("OrdersId,Data,Prioridade,PreçoTotal,Confirmada")] Orders orders)
         {
             // get user id
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -121,7 +121,7 @@ namespace MontagemPro.Controllers
         [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("OrdersId,Data,Prioridade,PreçoTotal")] Orders orders)
+        public async Task<IActionResult> Edit(int id, [Bind("OrdersId,Data,Prioridade,PreçoTotal,Confirmada")] Orders orders)
         {
             if (id != orders.OrdersId)
             {
@@ -147,6 +147,7 @@ namespace MontagemPro.Controllers
                     existingOrder.Data = orders.Data;
                     existingOrder.PreçoTotal = orders.PreçoTotal;
                     existingOrder.Prioridade = orders.Prioridade;
+                    existingOrder.Confirmada = orders.Confirmada;
 
                     // Save changes
                     try
@@ -178,9 +179,6 @@ namespace MontagemPro.Controllers
 
             return View(orders);
         }
-
-
-
 
         // GET: Orders/Delete/5
         [Authorize]

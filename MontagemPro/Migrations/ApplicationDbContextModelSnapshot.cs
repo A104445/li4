@@ -282,6 +282,9 @@ namespace MontagemPro.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<bool>("Confirmada")
+                        .HasColumnType("bit");
+
                     b.Property<DateTime>("Data")
                         .HasColumnType("datetime2");
 

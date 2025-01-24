@@ -26,10 +26,38 @@ namespace MontagemPro.Controllers
 
         // GET: OrderProducts1
         [Authorize]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int? id)
         {
-            var applicationDbContext = _context.OrderProducts.Include(o => o.Orders).Include(o => o.Produto).Where(o => o.OrdersId == _lastOrderId);
+            // Atualiza _lastOrderId se um ID for passado, ou utiliza o último armazenado
+            int ordersId = id ?? _lastOrderId ?? 0;
+
+            if (ordersId == 0)
+            {
+                return BadRequest("Nenhum OrdersId válido foi fornecido.");
+            }
+
+            // Atualiza o último ID utilizado
+            _lastOrderId = ordersId;
+
+            var model = await _context.OrderProducts
+                .Include(o => o.Produto)
+                .Include(o => o.Orders)
+                .Where(o => o.OrdersId == _lastOrderId)
+                .ToListAsync();
+
+            float totalPrice = model.Sum(item => item.Quantidade * item.Produto.Preco);
+
+            // Passa o total para a View
+            ViewBag.TotalPrice = totalPrice;
+
+            // Consulta filtrando pelo OrdersId
+            var applicationDbContext = _context.OrderProducts
+                .Include(o => o.Orders)
+                .Include(o => o.Produto)
+                .Where(o => o.OrdersId == ordersId);
+
             return View(await applicationDbContext.ToListAsync());
+
         }
 
         // GET: OrderProducts1/Details/5
@@ -49,6 +77,7 @@ namespace MontagemPro.Controllers
             {
                 return NotFound();
             }
+            
 
             return View(orderProduct);
         }
@@ -75,7 +104,7 @@ namespace MontagemPro.Controllers
             }
 
             ViewBag.OrdersId = _lastOrderId;
-            ViewData["ProductsId"] = new SelectList(_context.Products, "ProductsId", "ProductsId");
+            ViewData["Products"] = new SelectList(_context.Products, "ProductsId", "Nome");
             return View();
         }
 
@@ -87,8 +116,32 @@ namespace MontagemPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("OrderProductId,ProductsId,Quantidade,OrdersId")] OrderProduct orderProduct)
         {
+
+
             _logger.LogInformation($"Received OrderId: ID={orderProduct.OrdersId}");
 
+            // Obtenha a lista de OrderProducts para o último OrdersId
+            var model = await _context.OrderProducts
+                .Include(o => o.Produto)
+                .Include(o => o.Orders)
+                .Where(o => o.OrdersId == _lastOrderId)
+                .ToListAsync();
+
+            // Verifique se já existe um ProductsId igual
+            bool exists = model.Any(o => o.ProductsId == orderProduct.ProductsId);
+
+            if (exists)
+            {
+                // Mensagem de erro
+                ModelState.AddModelError("", "Este produto já foi adicionado a este pedido.");
+                ModelState.Remove("");
+                ViewData["Products"] = new SelectList(_context.Products, "ProductsId", "Nome", orderProduct.ProductsId);
+
+                // Retorne a View diretamente
+                return RedirectToAction(nameof(Create));
+            }
+
+            // Certifique-se de que o estado é válido antes de criar a entrada
             if (ModelState.IsValid)
             {
                 _context.Add(orderProduct);
@@ -97,11 +150,12 @@ namespace MontagemPro.Controllers
                 // Atualize o último OrderId utilizado após o POST
                 _lastOrderId = orderProduct.OrdersId;
 
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("Index", "OrderProducts1", new { ordersId = _lastOrderId });
             }
 
-            ViewData["ProductsId"] = new SelectList(_context.Products, "ProductsId", "ProductsId", orderProduct.ProductsId);
-            return View(orderProduct);
+            // Caso contrário, retorne a View para correção
+            ViewData["Products"] = new SelectList(_context.Products, "ProductsId", "Nome", orderProduct.ProductsId);
+            return RedirectToAction(nameof(Create));
         }
 
         // GET: OrderProducts1/Edit/5
@@ -196,6 +250,38 @@ namespace MontagemPro.Controllers
 
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
+        }
+        // Confirma a Order e conclui a encomenda
+        [Authorize]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ConfirmOrder(int orderId)
+        {
+            // Procura a ordem pelo ID
+            var order = await _context.Orders.FindAsync(orderId);
+            if (order == null)
+            {
+                return NotFound();
+            }
+
+            // Altera a variável Confirmada para true
+            order.Confirmada = true;
+
+            var model = await _context.OrderProducts
+                .Include(o => o.Produto)
+                .Include(o => o.Orders)
+                .Where(o => o.OrdersId == _lastOrderId)
+                .ToListAsync();
+
+            float totalPrice = model.Sum(item => item.Quantidade * item.Produto.Preco);
+
+            order.PreçoTotal = totalPrice;
+
+            // Salva as alterações no banco de dados
+            await _context.SaveChangesAsync();
+
+            // Redireciona de volta para a página Index
+            return RedirectToAction("Index","Orders");
         }
 
         private bool OrderProductExists(int id)

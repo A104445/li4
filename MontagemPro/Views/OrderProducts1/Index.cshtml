@@ -9,39 +9,45 @@
 <p>
     <a asp-action="Create">Create New</a>
 </p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Produto)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Orders)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Quantidade)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Produto.Nome)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Orders.OrdersId)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Quantidade)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.OrderProductId">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.OrderProductId">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.OrderProductId">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+<div style="display: flex; flex-direction: column; align-items: stretch;">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>@Html.DisplayNameFor(model => model.Produto)</th>
+                <th>@Html.DisplayNameFor(model => model.Orders)</th>
+                <th>@Html.DisplayNameFor(model => model.Quantidade)</th>
+                <th>Preço/Unidade</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@Html.DisplayFor(modelItem => item.Produto.Nome)</td>
+                    <td>@Html.DisplayFor(modelItem => item.Orders.OrdersId)</td>
+                    <td>@Html.DisplayFor(modelItem => item.Quantidade)</td>
+                    <td>@Html.DisplayFor(modelItem => item.Produto.Preco)</td>
+                    <td>
+                        <a asp-action="Edit" asp-route-id="@item.OrderProductId">Edit</a> |
+                        <a asp-action="Details" asp-route-id="@item.OrderProductId">Details</a> |
+                        <a asp-action="Delete" asp-route-id="@item.OrderProductId">Delete</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <div style="text-align: left; margin-top: 10px;">
+        <!-- Total à esquerda -->
+        <span style="font-size: 18px; font-weight: bold;">Total: @ViewBag.TotalPrice €</span>
+    </div>
+
+    <div style="text-align: right; margin-top: 10px;">
+       
+
+        <form asp-action="ConfirmOrder" method="post" >
+            <input type="hidden" name="orderId" value="@Model.FirstOrDefault()?.OrdersId" />
+            <button type="submit" class="btn btn-success btn-lg">Confirmar</button>
+        </form>
+    </div>
+</div>

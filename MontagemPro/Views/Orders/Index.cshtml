@@ -22,6 +22,9 @@
                 @Html.DisplayNameFor(model => model.PreçoTotal)
             </th>
             <th>
+                @Html.DisplayNameFor(model => model.Confirmada)
+            </th>
+            <th>
                 @Html.DisplayNameFor(model => model.User)
             </th>
             <th></th>
@@ -40,13 +43,31 @@
                 @Html.DisplayFor(modelItem => item.PreçoTotal)
             </td>
             <td>
+                @Html.DisplayFor(modelItem => item.Confirmada)
+            </td>
+            <td>
                 @Html.DisplayFor(modelItem => item.User.UserName)
             </td>
             <td>
-                <a asp-action="Edit" asp-route-id="@item.OrdersId">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.OrdersId">Details</a> |
+            @if (item.Confirmada & !(User.IsInRole("Admin")))
+            {
+                <a asp-action="Details" asp-route-id="@item.OrdersId">Details</a>
+            }
+            else if (!(item.Confirmada) & !(User.IsInRole("Admin")))
+            {
+                <a asp-action="Edit" asp-route-id="@item.OrdersId">Edit</a>
+                <a asp-action="Details" asp-route-id="@item.OrdersId">Details</a>
                 <a asp-action="Delete" asp-route-id="@item.OrdersId">Delete</a>
+                        <a asp-action="Index" asp-controller="OrderProducts1" asp-route-id="@item.OrdersId">Confirmar</a>
+            }
+            else 
+            {
+                        <a asp-action="Details" asp-route-id="@item.OrdersId">Details</a>
+                        <a asp-action="Delete" asp-route-id="@item.OrdersId">Delete</a>
+            }
             </td>
+
+            
         </tr>
 }
     </tbody>
