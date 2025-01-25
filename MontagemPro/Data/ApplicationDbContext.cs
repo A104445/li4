@@ -46,5 +46,6 @@ namespace MontagemPro.Data
                 .WithMany(c => c.ProdutoComponentes)
                 .HasForeignKey(pc => pc.ComponentsId);
         }
+        public DbSet<MontagemPro.Models.ProductionProcess> ProductionProcess { get; set; } = default!;
     }
 }

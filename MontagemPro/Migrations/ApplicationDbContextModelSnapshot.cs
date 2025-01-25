@@ -282,6 +282,9 @@ namespace MontagemPro.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<bool>("Completada")
+                        .HasColumnType("bit");
+
                     b.Property<bool>("Confirmada")
                         .HasColumnType("bit");
 
@@ -292,6 +295,9 @@ namespace MontagemPro.Migrations
                         .HasColumnType("float");
 
                     b.Property<int>("Prioridade")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Quantidade")
                         .HasColumnType("int");
 
                     b.HasKey("OrdersId");
@@ -325,6 +331,37 @@ namespace MontagemPro.Migrations
                     b.HasIndex("ProductsId");
 
                     b.ToTable("ProductComponents");
+                });
+
+            modelBuilder.Entity("MontagemPro.Models.ProductionProcess", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CurrentStage")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsCompleted")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("OrdersId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ProductName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("TotalStages")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrdersId");
+
+                    b.ToTable("ProductionProcess");
                 });
 
             modelBuilder.Entity("MontagemPro.Models.Products", b =>
@@ -445,6 +482,17 @@ namespace MontagemPro.Migrations
                     b.Navigation("Componente");
 
                     b.Navigation("Produto");
+                });
+
+            modelBuilder.Entity("MontagemPro.Models.ProductionProcess", b =>
+                {
+                    b.HasOne("MontagemPro.Models.Orders", "Order")
+                        .WithMany()
+                        .HasForeignKey("OrdersId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Order");
                 });
 
             modelBuilder.Entity("MontagemPro.Models.Components", b =>

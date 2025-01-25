@@ -46,6 +46,7 @@ namespace MontagemPro.Controllers
                 .ToListAsync();
 
             float totalPrice = model.Sum(item => item.Quantidade * item.Produto.Preco);
+           
 
             // Passa o total para a View
             ViewBag.TotalPrice = totalPrice;
@@ -276,6 +277,10 @@ namespace MontagemPro.Controllers
             float totalPrice = model.Sum(item => item.Quantidade * item.Produto.Preco);
 
             order.PreçoTotal = totalPrice;
+
+            int quantidade = model.Sum(item => item.Quantidade);
+
+            order.Quantidade = quantidade;
 
             // Salva as alterações no banco de dados
             await _context.SaveChangesAsync();

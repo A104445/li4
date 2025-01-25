@@ -1,0 +1,151 @@
+﻿@model MontagemPro.Models.ProductionProcess
+
+@{
+    ViewData["Title"] = "Detalhes da Produção";
+    var totalStages = Model.TotalStages; // Ex: 9
+    var currentStage = Model.CurrentStage;
+}
+
+<h2>Produção do Produto: @Model.ProductName</h2>
+
+<div>
+    <p>Fase atual: <span id="currentStage">@currentStage</span> de @totalStages</p>
+    <p>Progresso: <span id="progressPercent">@((double)currentStage / totalStages * 100)%</span></p>
+    <p>Quantidade restante: <span id="quantityRemaining">@Model.Order.Quantidade</span></p>
+</div>
+
+<!-- Container das imagens -->
+<div id="productionImages" style="display: flex; gap: 10px;">
+    @for (int i = 1; i <= totalStages; i++)
+    {
+        string imagePath = $"/Images/fase{i}.png";
+        string boxStyle = (i == currentStage)
+        ? "border: 3px solid red; padding: 5px;"
+        : "border: 1px solid #ccc; padding: 5px;";
+
+        <div style="@boxStyle">
+            <img src="@imagePath" alt="Fase @i" width="150" height="150" />
+            <br />
+            <!-- Aqui exibiremos os nomes dos componentes via JavaScript -->
+            <span id="componentName_@i" style="font-size: 14px; color: #333;"></span>
+        </div>
+    }
+</div>
+
+<div id="completedMessage" style="display:none; color: green;">
+    <p>Processo concluído!</p>
+</div>
+
+@section Scripts {
+    <script>
+        var processId = @Model.Id;       // ID do ProductionProcess
+        var totalStages = @Model.TotalStages;
+
+        // A cada 2s faz a chamada
+        var interval = setInterval(function() {
+            advanceStage();
+        }, 2000);
+
+        function advanceStage() {
+            fetch('/ProductionProcess/AdvanceStage/' + processId, {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Se for falta de stock (success=false), paramos tudo e alertamos
+                if (data.success === false) {
+                    alert(data.message);
+                    clearInterval(interval);
+                    return;
+                }
+
+                // Atualiza a UI normalmente
+                document.getElementById("currentStage").innerText = data.currentStage;
+                document.getElementById("quantityRemaining").innerText = data.orderQuantity;
+
+                let percent = (data.currentStage / totalStages) * 100;
+                percent = Math.round(percent);
+                document.getElementById("progressPercent").innerText = percent + "%";
+
+                if (data.isCompleted) {
+                    clearInterval(interval);
+                    document.getElementById("completedMessage").style.display = "block";
+                }
+
+                // Atualiza bordas
+                updateImages(data.currentStage);
+
+                // Se veio o array de nomes, distribuímos nas imagens
+                if (data.names) {
+                    updateComponents(data.names);
+                }
+            });
+        }
+
+        function updateImages(currentStage) {
+            const containers = document.querySelectorAll('#productionImages > div');
+            containers.forEach((div, index) => {
+                let stageNumber = index + 1;
+                if (stageNumber === currentStage) {
+                    div.style.border = '3px solid red';
+                } else {
+                    div.style.border = '1px solid #ccc';
+                }
+            });
+        }
+
+        // Exibe o(s) nome(s) do(s) componente(s) embaixo de cada imagem
+        // Regras:
+        //   Fases 1,2,3,4,8,9 -> 1 componente
+        //   Fases 5,6 -> 2 componentes
+        //   Fase 7 -> 3 componentes
+        function updateComponents(namesArray) {
+
+            // 1) Limpa todos os spans
+            for (let i = 1; i <= totalStages; i++) {
+                let span = document.getElementById("componentName_" + i);
+                if (span) span.innerHTML = "";
+            }
+
+            // Precisamos de uma forma de pegar nomes diferentes para cada fase.
+            // Supondo que "namesArray" tenha todos os nomes, a cada "chamada" do AdvanceStage.
+            // Vamos criar um índice para andar sobre o array e distribuir.
+            let index = 0;
+
+            for (let i = 1; i <= totalStages; i++) {
+                let needed = 1;  // padrão
+                if (i === 5 || i === 6) {
+                    needed = 2;
+                } else if (i === 7) {
+                    needed = 3;
+                }
+
+                let span = document.getElementById("componentName_" + i);
+                if (!span) continue;
+
+                // Colete os nomes para esta fase
+                let componentList = [];
+                for (let n = 0; n < needed; n++) {
+                    if (index < namesArray.length) {
+                        componentList.push(namesArray[index]);
+                        index++;
+                    } else {
+                        // Se não houver nomes suficientes,
+                        // pode inserir algo como "Sem componente"
+                        componentList.push("Sem componente");
+                    }
+                }
+
+                // Se só veio 1 componente, use "Componente incorporado"
+                // Se vieram 2 ou +, use "Componentes incorporados"
+                if (componentList.length === 1) {
+                    span.innerHTML = "Componente incorporado: " + componentList[0];
+                } else {
+                    // Junte a lista com vírgula
+                    let joined = componentList.join(", ");
+                    span.innerHTML = "Componentes incorporados: " + joined;
+                }
+            }
+        }
+    </script>
+}

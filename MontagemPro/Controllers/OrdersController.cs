@@ -94,6 +94,13 @@ namespace MontagemPro.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction("Create", "OrderProducts1", new { ordersId = orders.OrdersId });
             }
+            else
+            {
+                foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
+                {
+                    _logger.LogError($"Validation error: {error.ErrorMessage}");
+                }
+            }
             return View(orders);
         }
 
@@ -121,7 +128,7 @@ namespace MontagemPro.Controllers
         [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("OrdersId,Data,Prioridade,PreçoTotal,Confirmada")] Orders orders)
+        public async Task<IActionResult> Edit(int id, [Bind("OrdersId,Data,Prioridade,PreçoTotal,Confirmada,Quantidade,Completada")] Orders orders)
         {
             if (id != orders.OrdersId)
             {
@@ -148,6 +155,8 @@ namespace MontagemPro.Controllers
                     existingOrder.PreçoTotal = orders.PreçoTotal;
                     existingOrder.Prioridade = orders.Prioridade;
                     existingOrder.Confirmada = orders.Confirmada;
+                    existingOrder.Quantidade = orders.Quantidade;
+                    existingOrder.Completada = orders.Completada;
 
                     // Save changes
                     try

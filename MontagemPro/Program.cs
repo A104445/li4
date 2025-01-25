@@ -1,6 +1,7 @@
 using MontagemPro.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using MontagemPro.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,6 +15,8 @@ builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.Requ
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddHostedService<ProductionBackgroundService>();
 
 var app = builder.Build();
 
@@ -61,10 +64,10 @@ app.MapRazorPages()
 
 app.Run();
 
-// Método para garantir que os roles "Admin" e "Client" existem
+// Mï¿½todo para garantir que os roles "Admin" e "Client" existem
 async Task EnsureRolesAndAdmin(UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager)
 {
-    // Garantir que os papéis "Admin" e "Client" existam
+    // Garantir que os papï¿½is "Admin" e "Client" existam
     if (!await roleManager.RoleExistsAsync("Admin"))
     {
         await roleManager.CreateAsync(new IdentityRole("Admin"));
@@ -96,7 +99,7 @@ async Task EnsureRolesAndAdmin(UserManager<IdentityUser> userManager, RoleManage
         }
         else
         {
-            // Log ou exceção para verificar problemas de criação
+            // Log ou exceï¿½ï¿½o para verificar problemas de criaï¿½ï¿½o
             throw new Exception($"Erro ao criar a conta de administrador: {string.Join(", ", result.Errors.Select(e => e.Description))}");
         }
     }

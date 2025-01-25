@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MontagemPro.Models
 {
@@ -14,7 +15,7 @@ namespace MontagemPro.Models
         public int OrdersId { get; set; }
         public Orders? Orders { get; set; }
 
-        // Propriedade adicional para armazenar a quantidade
+        [Range(1, int.MaxValue, ErrorMessage = "O valor deve ser maior que 0.")]
         public int Quantidade { get; set; }
 
         public OrderProduct()

@@ -17,6 +17,7 @@ namespace MontagemPro.Models
         public int ComponentsId { get; set; }
         public Components? Componente { get; set; }
 
+        [Range(1, int.MaxValue, ErrorMessage = "O valor deve ser maior que 0.")]
         public int Quantidade { get; set; }
 
         public ProductComponent()

@@ -1,0 +1,45 @@
+﻿@model IEnumerable<MontagemPro.Models.ProductionProcess>
+
+@{
+    ViewData["Title"] = "Processos de Produção";
+}
+
+<h2>Linha de Montagem</h2>
+
+<!-- Se não houver nenhum processo em Model, exibimos uma mensagem de vazio -->
+@if (!Model.Any())
+{
+    <p>Nenhuma produção a decorrer neste momento.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>@Html.DisplayNameFor(model => model.Order.OrdersId)</th>
+                <th>@Html.DisplayNameFor(model => model.FirstOrDefault().Order.Data)</th>
+                <th>@Html.DisplayNameFor(model => model.ProductName)</th>
+                <th>@Html.DisplayNameFor(model => model.CurrentStage)</th>
+                <th>@Html.DisplayNameFor(model => model.TotalStages)</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@Html.DisplayFor(modelItem => item.OrdersId)</td>
+                    <td>@Html.DisplayFor(modelItem => item.Order.Data)</td>
+                    <td>@Html.DisplayFor(modelItem => item.ProductName)</td>
+                    <td>@Html.DisplayFor(modelItem => item.CurrentStage)</td>
+                    <td>@Html.DisplayFor(modelItem => item.TotalStages)</td>
+                    <td>
+                        <button onclick="window.location.href='@Url.Action("Details", "ProductionProcess", new { id = item.Id })'">
+                            Detalhes
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
